@@ -27,9 +27,20 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
-    app.get("/", (req, res) => {
+    const visaCollection = client.db("visasDB").collection("visa");
+    app.get("/visa", (req, res) => {
       res.send("Hello world");
     });
+
+    // Posting
+
+    app.post("/addVisa", async (req, res) => {
+      const newVisa = req.body;
+      const result = await visaCollection.insertOne(newVisa);
+      console.log(newVisa);
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(

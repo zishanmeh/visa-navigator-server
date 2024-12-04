@@ -28,8 +28,11 @@ async function run() {
     await client.connect();
 
     const visaCollection = client.db("visasDB").collection("visa");
-    app.get("/visa", (req, res) => {
-      res.send("Hello world");
+    // Get method
+    app.get("/allVisa", async (req, res) => {
+      const cursor = visaCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
     });
 
     // Posting

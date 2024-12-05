@@ -69,6 +69,34 @@ async function run() {
       console.log(newVisa);
       res.send(result);
     });
+    app.put("/updateVisa/:id", async (req, res) => {
+      const id = req.params.id;
+      const newUpdateVisa = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedVisa = {
+        /*
+         */
+        $set: {
+          countryImage: newUpdateVisa.countryImage,
+          countryName: newUpdateVisa.countryName,
+          processingTime: newUpdateVisa.processingTime,
+          description: newUpdateVisa.description,
+          ageRestriction: newUpdateVisa.ageRestriction,
+          visaFee: newUpdateVisa.visaFee,
+          validity: newUpdateVisa.validity,
+          applicationMethod: newUpdateVisa.applicationMethod,
+          selectedVisaType: newUpdateVisa.selectedVisaType,
+          selectedDocuments: newUpdateVisa.selectedDocuments,
+        },
+      };
+      const result = await visaCollection.updateOne(
+        filter,
+        updatedVisa,
+        options
+      );
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });

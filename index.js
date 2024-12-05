@@ -44,6 +44,16 @@ async function run() {
       const result = await visaCollection.findOne(query);
       res.send(result);
     });
+    app.get("/visa/user/:email", async (req, res) => {
+      const user = req.params.email;
+      const query = { userEmail: user };
+      try {
+        const visas = await visaCollection.find(query).toArray();
+        res.send(visas);
+      } catch (error) {
+        res.status(500).send({ error: "Failed to fetch data" });
+      }
+    });
 
     // Posting
 

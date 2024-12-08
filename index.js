@@ -7,9 +7,6 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use(cors());
 
-// J9QcTe7yYctk42R7
-// zishanmehedihasan
-
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = `mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@cluster0.lkx4f.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -25,7 +22,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const visaCollection = client.db("visasDB").collection("visa");
     const appliedVisaCollection = client
@@ -35,6 +32,12 @@ async function run() {
     app.get("/allVisa", async (req, res) => {
       const cursor = visaCollection.find();
       const result = await cursor.toArray();
+      res.send(result);
+    });
+    app.get("/latestVisa", async (req, res) => {
+      const cursor = visaCollection.find().sort({ _id: -1 }).limit(6);
+      const result = await cursor.toArray();
+      // const reverse = result.reverse();
       res.send(result);
     });
 
@@ -50,6 +53,16 @@ async function run() {
       try {
         const visas = await visaCollection.find(query).toArray();
         res.send(visas);
+      } catch (error) {
+        res.status(500).send({ error: "Failed to fetch data" });
+      }
+    });
+    app.get("/application/:email", async (req, res) => {
+      const user = req.params.email;
+      const query = { email: user };
+      try {
+        const appliedVisas = await appliedVisaCollection.find(query).toArray();
+        res.send(appliedVisas);
       } catch (error) {
         res.status(500).send({ error: "Failed to fetch data" });
       }
@@ -103,13 +116,20 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await visaCollection.deleteOne(query);
+      res.send(result);
+    });
+    app.delete("/application/delete/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await appliedVisaCollection.deleteOne(query);
+      res.send(result);
     });
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
+    // await client.db("admin").command({ ping: 1 });
+    // console.log(
+    //   "Pinged your deployment. You successfully connected to MongoDB!"
+    // );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
